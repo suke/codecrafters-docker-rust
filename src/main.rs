@@ -21,7 +21,14 @@ fn main() -> Result<()> {
     if output.status.success() {
         io::stdout().write_all(&output.stdout).unwrap();
     } else {
-        std::process::exit(1);
+        match output.status.code() {
+            Some(code) => std::process::exit(code),
+            None => {
+                let stderr = io::stderr();
+                let mut handle = stderr.lock();
+                handle.write_all(b"Process terminated by signal")?;
+            }
+        }
     }
 
     Ok(())
