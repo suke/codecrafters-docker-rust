@@ -17,6 +17,11 @@ fn main() -> Result<()> {
     fs::chroot(&dir)?;
     std::env::set_current_dir("/")?;
 
+    #[cfg(target_os = "linux")]
+    unsafe {
+        libc::unshare(libc::CLONE_NEWPID);
+    }
+
     let output = Command::new(command)
         .stderr(Stdio::inherit())
         .args(command_args)
